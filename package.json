@@ -1,0 +1,15 @@
+{
+  "name": "abay-web",
+  "version": "1.0.0",
+  "description": "Página web de ABAY Centro Multidisciplinar — A Coruña",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=index.html",
+    "start": "live-server --port=3000 --open=index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": ["abay", "fitness", "web"],
+  "author": "ABAY Centro Multidisciplinar",
+  "license": "UNLICENSED"
+}
