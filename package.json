@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Página web de ABAY Centro Multidisciplinar — A Coruña",
   "scripts": {
-    "dev": "live-server --port=3000 --open=index.html",
-    "start": "live-server --port=3000 --open=index.html"
+    "dev": "live-server --port=3000 --open=index.html --ignore=node_modules",
+    "start": "live-server --port=3000 --open=index.html --ignore=node_modules"
   },
   "devDependencies": {
     "live-server": "^1.2.2"

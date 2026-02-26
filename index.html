@@ -38,10 +38,23 @@ body {
 }
 
 /* ── CURSOR ── */
-#cur { width:10px;height:10px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform .15s,background .2s;mix-blend-mode:screen; }
-#cur-r { width:40px;height:40px;border:1px solid rgba(64,144,217,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:left .12s ease,top .12s ease,opacity .3s; }
-body:hover #cur-r { opacity:1; }
-.hov:hover ~ #cur, a:hover ~ #cur { transform:scale(3); }
+#cur {
+  width:18px;height:18px;
+  position:fixed;pointer-events:none;z-index:9999;
+  transition:transform .15s, opacity .2s;
+}
+#cur::before {
+  content:'';position:absolute;width:1px;height:18px;
+  background:var(--accent);left:50%;top:0;transform:translateX(-50%);
+  opacity:.9;
+}
+#cur::after {
+  content:'';position:absolute;width:18px;height:1px;
+  background:var(--accent);top:50%;left:0;transform:translateY(-50%);
+  opacity:.9;
+}
+#cur-r { display:none; }
+body:hover #cur { opacity:1; }
 
 /* ── LOADING SCREEN ── */
 #loader {
@@ -77,6 +90,7 @@ nav {
   display:flex;align-items:center;justify-content:space-between;
   transition:background .4s,border-color .4s;
   border-bottom:1px solid transparent;
+  animation:navIn .6s 2.1s both;
 }
 nav.scrolled {
   background:rgba(8,10,15,.92);
@@ -159,7 +173,7 @@ nav.scrolled {
   font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:5px;
   text-transform:uppercase;color:var(--accent);margin-bottom:20px;
   display:flex;align-items:center;gap:12px;
-  opacity:0;animation:riseUp .8s .3s forwards;
+  opacity:0;animation:riseUp .8s 2.3s forwards;
 }
 .hero-tag::before {
   content:'';width:32px;height:1px;background:var(--accent);flex-shrink:0;
@@ -169,21 +183,21 @@ nav.scrolled {
   font-size:clamp(90px,13vw,180px);line-height:.88;letter-spacing:2px;
   background:linear-gradient(135deg,#fff 0%,var(--steel-l) 40%,var(--steel-d) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  opacity:0;animation:riseUp .9s .5s forwards;
+  opacity:0;animation:titleReveal 1s 2.6s forwards;
 }
 .hero-sub {
   font-family:'Barlow Condensed',sans-serif;font-size:20px;letter-spacing:7px;
   text-transform:uppercase;color:var(--steel);margin-top:8px;margin-bottom:28px;
-  opacity:0;animation:riseUp .8s .7s forwards;
+  opacity:0;animation:riseUp .8s 2.9s forwards;
 }
 .hero-desc {
   font-size:16px;font-weight:300;color:var(--muted2);line-height:1.9;
   max-width:480px;margin-bottom:44px;
-  opacity:0;animation:riseUp .8s .9s forwards;
+  opacity:0;animation:riseUp .8s 3.1s forwards;
 }
 .hero-btns {
   display:flex;gap:20px;align-items:center;
-  opacity:0;animation:riseUp .8s 1.1s forwards;
+  opacity:0;animation:riseUp .8s 3.3s forwards;
 }
 .btn-primary {
   font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:3px;
@@ -205,7 +219,7 @@ nav.scrolled {
 .hero-kpis {
   position:absolute;right:64px;bottom:80px;
   display:flex;gap:56px;
-  opacity:0;animation:riseUp .8s 1.3s forwards;
+  opacity:0;animation:riseUp .8s 3.5s forwards;
 }
 .kpi { text-align:center; }
 .kpi-n {
@@ -221,7 +235,7 @@ nav.scrolled {
 .scroll-hint {
   position:absolute;bottom:40px;left:64px;
   display:flex;flex-direction:column;align-items:center;gap:8px;
-  opacity:0;animation:riseUp .8s 1.6s forwards;
+  opacity:0;animation:riseUp .8s 3.8s forwards;
 }
 .scroll-line {
   width:1px;height:64px;
@@ -234,6 +248,8 @@ nav.scrolled {
 }
 @keyframes scrollPulse { 0%,100%{opacity:1;transform:scaleY(1)} 50%{opacity:.3;transform:scaleY(.6)} }
 @keyframes riseUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+@keyframes navIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:none} }
+@keyframes titleReveal { from{opacity:0;transform:translateY(70px);letter-spacing:-6px} to{opacity:1;transform:none;letter-spacing:2px} }
 
 /* ── DIVIDER ── */
 .hr { height:1px;background:linear-gradient(90deg,transparent,var(--steel-d),transparent);margin:0 64px; }
@@ -302,6 +318,43 @@ nav.scrolled {
 .inst-tag {
   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;
   text-transform:uppercase;color:var(--accent);margin-top:auto;
+}
+
+/* ── INST 3D ICON ── */
+.inst-icon-wrap {
+  position:relative;
+  width:fit-content;align-self:flex-start;
+  animation:iconFloat 3s ease-in-out infinite;
+}
+.inst-icon-wrap::after {
+  content:'';position:absolute;bottom:-10px;left:50%;
+  transform:translateX(-50%);
+  width:36px;height:7px;
+  background:radial-gradient(ellipse,rgba(64,144,217,.55),transparent 70%);
+  border-radius:50%;
+  animation:iconGlow 3s ease-in-out infinite;
+}
+.inst-card:nth-child(1) .inst-icon-wrap { animation-delay:0s; }
+.inst-card:nth-child(2) .inst-icon-wrap { animation-delay:-.6s; }
+.inst-card:nth-child(3) .inst-icon-wrap { animation-delay:-1.2s; }
+.inst-card:nth-child(4) .inst-icon-wrap { animation-delay:-1.8s; }
+.inst-card:nth-child(5) .inst-icon-wrap { animation-delay:-2.4s; }
+.inst-emoji {
+  font-size:40px;line-height:1;display:block;
+  filter:drop-shadow(0 6px 12px rgba(64,144,217,.35));
+  transition:transform .5s cubic-bezier(.16,1,.3,1),filter .3s;
+}
+.inst-card:hover .inst-emoji {
+  transform:scale(1.2) rotateY(20deg);
+  filter:drop-shadow(0 10px 24px rgba(64,144,217,.85));
+}
+@keyframes iconFloat {
+  0%,100% { transform:translateY(0); }
+  50%     { transform:translateY(-10px); }
+}
+@keyframes iconGlow {
+  0%,100% { opacity:.7;transform:translateX(-50%) scaleX(1); }
+  50%     { opacity:.2;transform:translateX(-50%) scaleX(.5); }
 }
 
 /* ── SERVICIOS ── */
@@ -380,6 +433,7 @@ nav.scrolled {
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,rgba(37,99,171,.08),transparent);
   opacity:0;transition:opacity .3s;
+  pointer-events:none;
 }
 .cls-card:hover { border-color:var(--steel-d);transform:translateY(-4px); }
 .cls-card:hover::after { opacity:1; }
@@ -491,17 +545,21 @@ nav.scrolled {
   font-size:72px;position:relative;overflow:hidden;
   background:linear-gradient(160deg,var(--bg3),var(--bg4));
 }
+.trainer-ph img {
+  width:100%;height:100%;object-fit:cover;
+  position:absolute;inset:0;
+  filter:grayscale(20%) contrast(1.05);
+  transition:transform .6s cubic-bezier(.16,1,.3,1);
+}
+.trainer:hover .trainer-ph img { transform:scale(1.05); }
 .trainer-ph::after {
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 40%,var(--bg3) 100%);
+  background:rgba(8,10,15,.35);
+  pointer-events:none;
+  transition:background .4s;
 }
-.trainer-overlay {
-  position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(8,10,15,.95) 0%,transparent 60%);
-  opacity:0;transition:opacity .4s;
-  display:flex;align-items:flex-end;padding:28px;
-}
-.trainer:hover .trainer-overlay { opacity:1; }
+.trainer:hover .trainer-ph::after { background:rgba(8,10,15,.15); }
+.trainer-overlay { display:none; }
 .trainer-bio { font-size:13px;font-weight:300;color:var(--muted2);line-height:1.7; }
 .trainer-info { padding:24px; }
 .trainer-name {
@@ -643,13 +701,13 @@ footer {
 }
 .foot-socials { display:flex;gap:12px; }
 .soc {
-  width:36px;height:36px;border:1px solid var(--border);
+  width:38px;height:38px;border:1px solid var(--border2);
   display:flex;align-items:center;justify-content:center;
-  color:var(--muted2);font-family:'Barlow Condensed',sans-serif;
-  font-size:12px;letter-spacing:1px;text-decoration:none;
+  color:var(--steel-l);font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;letter-spacing:1px;text-decoration:none;
   transition:all .3s;
 }
-.soc:hover { border-color:var(--steel-d);color:var(--white); }
+.soc:hover { border-color:var(--accent);color:var(--white);background:rgba(37,99,171,.15); }
 
 /* ── FLOATING CTA ── */
 .float-cta {
@@ -665,6 +723,371 @@ footer {
 }
 .float-cta.show { opacity:1;transform:translateY(0);pointer-events:all; }
 .float-cta:hover { box-shadow:0 16px 48px var(--glow);transform:translateY(-2px); }
+
+/* ── NAV SOCIO ── */
+.nav-socio {
+  display:flex;align-items:center;gap:12px;
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--steel);
+}
+.nav-socio-num {
+  padding:7px 16px;border:1px solid var(--border2);color:var(--steel-l);letter-spacing:2px;
+}
+.btn-logout {
+  background:none;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:none;transition:color .2s;padding:0;
+}
+.btn-logout:hover { color:var(--white); }
+
+/* ── RESERVA MODALES ── */
+.r-modal-bg {
+  position:fixed;inset:0;z-index:810;
+  background:rgba(4,6,10,.88);backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;
+}
+.r-modal-bg.open { opacity:1;visibility:visible; }
+.r-modal {
+  background:var(--bg3);border:1px solid var(--border2);
+  max-width:440px;width:100%;padding:48px 44px;
+  display:flex;flex-direction:column;gap:16px;position:relative;
+  transform:translateY(24px) scale(.97);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+}
+.r-modal-bg.open .r-modal { transform:none; }
+.r-modal-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:5px;
+  text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:10px;
+}
+.r-modal-tag::before { content:'';width:20px;height:1px;background:var(--accent); }
+.r-modal-title {
+  font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;line-height:1.05;
+  background:linear-gradient(135deg,var(--white),var(--steel));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.r-modal-desc { font-size:13px;font-weight:300;color:var(--muted2);line-height:1.8; }
+.r-modal-meta {
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;
+  color:var(--steel-l);border-left:2px solid var(--accent);padding-left:14px;
+}
+.r-modal-notice {
+  font-size:11px;font-weight:300;color:var(--muted);line-height:1.7;
+  border:1px solid var(--border);padding:12px 14px;
+}
+.r-modal-error {
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;color:#e05a5a;min-height:16px;
+}
+.r-modal-cancel {
+  background:none;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;cursor:none;
+  transition:color .2s;padding:4px 0;text-align:center;
+}
+.r-modal-cancel:hover { color:var(--white); }
+
+/* ── ESTADOS BOTÓN RESERVA ── */
+.btn-cls.reservado { border-color:var(--accent);color:var(--accent); }
+.btn-cls.reservado:hover { background:rgba(220,60,60,.15);border-color:#e05a5a;color:#e05a5a; }
+.btn-cls.completo { border-color:var(--muted);color:var(--muted);pointer-events:none;opacity:.5; }
+.btn-cls.login-req { border-color:var(--border);color:var(--muted2); }
+
+/* ── INST MODAL ── */
+.inst-modal-bg {
+  position:fixed;inset:0;z-index:800;
+  background:rgba(4,6,10,.88);backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;
+}
+.inst-modal-bg.open { opacity:1;visibility:visible; }
+.inst-modal {
+  background:var(--bg3);border:1px solid var(--border2);
+  max-width:900px;width:100%;max-height:90vh;overflow:hidden;
+  display:grid;grid-template-columns:420px 1fr;position:relative;
+  transform:translateY(28px) scale(.97);
+  transition:transform .35s cubic-bezier(.16,1,.3,1);
+}
+.inst-modal-bg.open .inst-modal { transform:none; }
+.inst-modal-img {
+  width:100%;height:100%;min-height:480px;object-fit:cover;display:block;
+}
+.inst-modal-body {
+  padding:44px 40px;display:flex;flex-direction:column;gap:18px;
+  overflow-y:auto;position:relative;
+}
+.inst-modal-num {
+  font-family:'Bebas Neue',sans-serif;font-size:80px;
+  color:rgba(122,168,204,.06);position:absolute;top:16px;right:24px;
+  line-height:1;pointer-events:none;
+}
+.inst-modal-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:5px;
+  text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:10px;
+}
+.inst-modal-tag::before { content:'';width:20px;height:1px;background:var(--accent); }
+.inst-modal-name {
+  font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;line-height:1;
+  background:linear-gradient(135deg,var(--white),var(--steel));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.inst-modal-desc {
+  font-size:14px;font-weight:300;color:var(--muted2);line-height:1.9;
+  border-top:1px solid var(--border);padding-top:18px;
+}
+.inst-modal-feats { list-style:none;display:flex;flex-direction:column;gap:10px; }
+.inst-modal-feats li {
+  font-size:13px;font-weight:300;color:var(--muted2);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.inst-modal-feats li::before { content:'◆';font-size:6px;color:var(--accent);flex-shrink:0;margin-top:5px; }
+.inst-modal-info {
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;
+}
+.inst-modal-info-item {
+  background:var(--bg4);border:1px solid var(--border);padding:12px 14px;
+}
+.inst-modal-info-label {
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px;
+}
+.inst-modal-info-val {
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:1px;color:var(--white);
+}
+.inst-modal-close {
+  position:absolute;top:14px;right:14px;
+  width:34px;height:34px;border:1px solid var(--border);background:var(--bg4);
+  color:var(--muted2);font-size:16px;cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;z-index:2;
+}
+.inst-modal-close:hover { border-color:var(--steel-d);color:var(--white); }
+.inst-card { cursor:none; }
+.inst-hint {
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);opacity:.6;margin-top:auto;
+  display:flex;align-items:center;gap:6px;
+}
+.inst-hint::before { content:'';width:12px;height:1px;background:var(--accent); }
+@media(max-width:700px) {
+  .inst-modal { grid-template-columns:1fr; }
+  .inst-modal-img { min-height:220px;max-height:250px; }
+}
+
+/* ── TRAINER MODAL ── */
+.t-modal-bg {
+  position:fixed;inset:0;z-index:800;
+  background:rgba(4,6,10,.85);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;visibility:hidden;
+  transition:opacity .35s,visibility .35s;
+}
+.t-modal-bg.open { opacity:1;visibility:visible; }
+.t-modal {
+  background:var(--bg3);border:1px solid var(--border2);
+  max-width:780px;width:100%;
+  display:grid;grid-template-columns:320px 1fr;
+  position:relative;overflow:hidden;
+  transform:translateY(32px) scale(.97);
+  transition:transform .35s cubic-bezier(.16,1,.3,1);
+}
+.t-modal-bg.open .t-modal { transform:none; }
+.t-modal-img {
+  width:100%;height:100%;min-height:420px;
+  object-fit:cover;display:block;
+  filter:grayscale(15%) contrast(1.05);
+}
+.t-modal-body {
+  padding:48px 40px;display:flex;flex-direction:column;justify-content:center;gap:20px;
+  position:relative;
+}
+.t-modal-accent {
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,var(--blue),var(--accent2));
+}
+.t-modal-role {
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--accent);
+}
+.t-modal-name {
+  font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;line-height:1;
+  background:linear-gradient(135deg,var(--white),var(--steel));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.t-modal-bio {
+  font-size:15px;font-weight:300;color:var(--muted2);line-height:1.85;
+  border-top:1px solid var(--border);padding-top:20px;
+}
+.t-modal-tags { display:flex;flex-wrap:wrap;gap:8px; }
+.t-modal-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--steel-l);
+  border:1px solid var(--border2);padding:5px 12px;
+}
+.t-modal-close {
+  position:absolute;top:16px;right:16px;
+  width:36px;height:36px;border:1px solid var(--border);background:var(--bg4);
+  color:var(--muted2);font-size:18px;cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;z-index:2;
+}
+.t-modal-close:hover { border-color:var(--steel-d);color:var(--white); }
+.trainer { cursor:none; }
+.trainer-click-hint {
+  position:absolute;bottom:12px;right:12px;z-index:3;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);opacity:.7;
+  display:flex;align-items:center;gap:5px;
+}
+.trainer-click-hint::before { content:'';width:14px;height:1px;background:var(--accent); }
+@media(max-width:640px) {
+  .t-modal { grid-template-columns:1fr; }
+  .t-modal-img { min-height:260px;max-height:280px; }
+}
+
+/* ── WELLNESS FOTOS ── */
+.well-card { display:flex;flex-direction:column;justify-content:flex-end; }
+.well-photo {
+  position:absolute;inset:0;z-index:0;
+}
+.well-photo img {
+  width:100%;height:100%;object-fit:cover;
+  filter:grayscale(20%) contrast(1.05) brightness(.85);
+  transition:transform .6s cubic-bezier(.16,1,.3,1),filter .4s;
+}
+.well-card:hover .well-photo img {
+  transform:scale(1.06);
+  filter:grayscale(5%) contrast(1.05) brightness(.9);
+}
+.well-photo::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,10,15,.92) 40%,rgba(8,10,15,.45) 100%);
+  pointer-events:none;
+}
+.well-content { position:relative;z-index:1; }
+
+/* ── SERVICE MODAL ── */
+.srv-item { cursor:pointer;transition:background .2s; }
+.srv-item:hover { background:rgba(255,255,255,.03); }
+.srv-arrow { transition:transform .25s,color .25s; }
+.srv-item:hover .srv-arrow { transform:translateX(6px);color:var(--accent); }
+.srv-big-card { cursor:pointer;transition:opacity .2s; }
+.srv-big-card:hover { opacity:.85; }
+.srv-modal-bg {
+  position:fixed;inset:0;z-index:900;
+  background:rgba(8,10,15,.8);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.srv-modal-bg.open { opacity:1;pointer-events:all; }
+.srv-modal {
+  background:var(--bg2);border:1px solid var(--border2);
+  max-width:420px;width:90%;padding:40px 36px;
+  transform:scale(.92) translateY(20px);
+  transition:transform .35s cubic-bezier(.16,1,.3,1);
+}
+.srv-modal-bg.open .srv-modal { transform:none; }
+.srv-modal-icon { font-size:36px;margin-bottom:16px; }
+.srv-modal-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+}
+.srv-modal-name {
+  font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:var(--white);margin-bottom:8px;line-height:1.1;
+}
+.srv-modal-sub { font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:24px; }
+.srv-modal-q {
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--steel-l);margin-bottom:20px;
+}
+.srv-modal-btns { display:flex;flex-direction:column;gap:10px; }
+.srv-modal-cancel {
+  background:none;border:1px solid var(--border);color:var(--muted);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;
+  letter-spacing:3px;text-transform:uppercase;
+  padding:12px;cursor:pointer;transition:border-color .2s,color .2s;
+}
+.srv-modal-cancel:hover { border-color:var(--border2);color:var(--steel); }
+
+/* ── MEMBRESÍAS REDESIGN ── */
+.mem-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);
+  margin-top:56px;border:1px solid var(--border);
+}
+.mem-card {
+  padding:48px 36px;border-right:1px solid var(--border);
+  position:relative;transition:background .3s;
+}
+.mem-card:last-child { border-right:none; }
+.mem-card:hover { background:rgba(255,255,255,.025); }
+.mem-card-feat {
+  background:linear-gradient(160deg,rgba(37,99,171,.1),var(--bg3) 70%);
+}
+.mem-card-badge {
+  display:inline-block;
+  font-family:'Barlow Condensed',sans-serif;font-size:9px;
+  letter-spacing:4px;text-transform:uppercase;
+  background:var(--accent);color:var(--bg);
+  padding:5px 14px;margin-bottom:20px;
+}
+.mem-card-num {
+  font-family:'Bebas Neue',sans-serif;font-size:68px;line-height:1;
+  color:var(--border2);margin-bottom:4px;
+}
+.mem-card-feat .mem-card-num { color:rgba(37,99,171,.5); }
+.mem-card-name {
+  font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;color:var(--white);margin-bottom:6px;
+}
+.mem-card-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:18px;
+}
+.mem-card-desc { font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:22px; }
+.mem-card-feats { list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px; }
+.mem-card-feats li {
+  font-size:13px;color:var(--steel-l);display:flex;align-items:center;gap:10px;font-weight:300;
+}
+.mem-card-feats li::before { content:'—';color:var(--accent);flex-shrink:0; }
+.mem-card-btn {
+  background:none;border:1px solid var(--border2);color:var(--muted2);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;padding:12px 20px;cursor:pointer;width:100%;
+  transition:border-color .25s,color .25s;
+}
+.mem-card-btn:hover { border-color:var(--steel);color:var(--white); }
+.mem-card-btn-feat { border-color:rgba(37,99,171,.6);color:var(--white); }
+.mem-card-btn-feat:hover { border-color:var(--accent);background:rgba(37,99,171,.15); }
+.mem-banner {
+  margin-top:2px;padding:52px 56px;
+  background:linear-gradient(135deg,rgba(37,99,171,.13),var(--bg3) 60%);
+  border:1px solid rgba(37,99,171,.25);
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:60px;
+}
+.mem-banner-glow {
+  position:absolute;right:-60px;top:50%;transform:translateY(-50%);
+  width:320px;height:320px;
+  background:radial-gradient(circle,rgba(37,99,171,.18),transparent 70%);
+  pointer-events:none;
+}
+.mem-banner-tag {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+}
+.mem-banner-title {
+  font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--white);line-height:1;margin-bottom:14px;
+}
+.mem-banner-desc { font-size:14px;color:var(--muted2);line-height:1.7;max-width:480px; }
+.mem-banner-cta { display:flex;flex-direction:column;align-items:flex-end;gap:14px;flex-shrink:0; }
+.mem-banner-hint {
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted);text-align:right;
+}
 
 /* ── MOBILE ── */
 @media(max-width:1024px) {
@@ -698,9 +1121,6 @@ footer {
 <div id="cur"></div>
 <div id="cur-r"></div>
 
-<!-- FLOATING CTA -->
-<button class="float-cta" id="floatCta" onclick="document.getElementById('membresias').scrollIntoView({behavior:'smooth'})">Únete ahora</button>
-
 <!-- NAV -->
 <nav id="nav">
   <a href="#" class="nav-logo">ABAY</a>
@@ -714,7 +1134,6 @@ footer {
   </ul>
   <div class="nav-right">
     <a href="#contacto" class="btn-nav-ghost">Reservar visita</a>
-    <a href="#membresias" class="btn-nav-solid">Únete</a>
   </div>
 </nav>
 
@@ -754,40 +1173,70 @@ footer {
     <p class="sec-desc">5 zonas diseñadas para un objetivo: que saques lo mejor de ti cada día.</p>
   </div>
   <div class="inst-grid">
-    <div class="inst-card rv d1">
-      <div class="inst-emoji">💪</div>
+    <div class="inst-card rv d1"
+      data-num="01" data-access="Acceso libre"
+      data-name="Sala Fitness"
+      data-img="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80"
+      data-desc="Nuestra sala de fitness cuenta con equipamiento de última generación para entrenamiento de fuerza, cardio y acondicionamiento físico completo. Máquinas de alta tecnología, zona de pesos libres y área funcional en un espacio diseñado para rendir al máximo."
+      data-feats="Zona de pesos libres y barras olímpicas,Máquinas cardiovasculares de última generación,Área de entrenamiento funcional,Equipamiento de resistencia y cables,Espejos y suelo antideslizante profesional"
+      data-capacity="Aforo: 30 personas" data-hours="Lun–Vie 07:00–22:00 · Sáb–Dom 09:00–20:00">
+      <div class="inst-icon-wrap"><div class="inst-emoji">💪</div></div>
       <div class="inst-num">01</div>
       <div class="inst-name">Sala Fitness</div>
       <div class="inst-desc">Equipamiento de última generación para fuerza, cardio y acondicionamiento físico completo.</div>
-      <div class="inst-tag">Acceso libre</div>
+      <div class="inst-hint">Ver más</div>
     </div>
-    <div class="inst-card rv d2">
-      <div class="inst-emoji">🧘</div>
+    <div class="inst-card rv d2"
+      data-num="02" data-access="Por reserva"
+      data-name="Sala Grupal"
+      data-img="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80"
+      data-desc="Sala amplia, acondicionada acústicamente y con suelo especializado para la práctica de disciplinas grupales. Perfecta para yoga, pilates, zumba, funcional en grupo y mucho más. Ambiente motivador que hace que cada clase sea una experiencia única."
+      data-feats="Suelo de madera flotante profesional,Espejos en toda la pared frontal,Sistema de sonido de alta fidelidad,Acondicionamiento climático independiente,Material propio: esterillas, bandas, bloques"
+      data-capacity="Aforo: 20 personas" data-hours="Clases programadas · Consulta horario">
+      <div class="inst-icon-wrap"><div class="inst-emoji">🧘</div></div>
       <div class="inst-num">02</div>
       <div class="inst-name">Sala Grupal</div>
       <div class="inst-desc">Espacio amplio y acondicionado para yoga, pilates, zumba y más disciplinas en grupo.</div>
-      <div class="inst-tag">Por reserva</div>
+      <div class="inst-hint">Ver más</div>
     </div>
-    <div class="inst-card rv d3">
-      <div class="inst-emoji">🩺</div>
+    <div class="inst-card rv d3"
+      data-num="03" data-access="Con cita previa"
+      data-name="Zona Fisio"
+      data-img="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80"
+      data-desc="Gabinete de fisioterapia totalmente equipado con tecnología de rehabilitación avanzada. Atendido por la Dra. Ana López, especialista en lesiones deportivas y rehabilitación postquirúrgica. Un espacio diseñado para tu recuperación y bienestar."
+      data-feats="Camillas especializadas articuladas,Equipos de electroterapia y ultrasonidos,Zona de rehabilitación activa,Diagnóstico por imagen de referencia,Programas personalizados de recuperación"
+      data-capacity="Consultas individuales" data-hours="Lun–Vie 09:00–20:00 · Cita previa">
+      <div class="inst-icon-wrap"><div class="inst-emoji">🩺</div></div>
       <div class="inst-num">03</div>
       <div class="inst-name">Zona Fisio</div>
       <div class="inst-desc">Gabinete equipado con tecnología de rehabilitación avanzada y camillas especializadas.</div>
-      <div class="inst-tag">Con cita previa</div>
+      <div class="inst-hint">Ver más</div>
     </div>
-    <div class="inst-card rv d4">
-      <div class="inst-emoji">⚽</div>
+    <div class="inst-card rv d4"
+      data-num="04" data-access="Supervisado"
+      data-name="Área Deportiva"
+      data-img="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80"
+      data-desc="Espacio polivalente de alto rendimiento para entrenamiento técnico y físico específico de fútbol y otros deportes de equipo. Supervisado por Marcos Torres, preparador físico con experiencia en fútbol semiprofesional."
+      data-feats="Superficie de césped artificial de calidad,Zona de sprints y trabajo de velocidad,Equipamiento técnico: conos, escaleras, vallas,Área de calentamiento y estiramientos,Sistema de análisis de rendimiento"
+      data-capacity="Aforo: 15 personas" data-hours="Lun–Sáb · Sesiones programadas">
+      <div class="inst-icon-wrap"><div class="inst-emoji">⚽</div></div>
       <div class="inst-num">04</div>
       <div class="inst-name">Área Deportiva</div>
       <div class="inst-desc">Espacio polivalente para entrenamiento específico de fútbol y deportes de equipo.</div>
-      <div class="inst-tag">Supervisado</div>
+      <div class="inst-hint">Ver más</div>
     </div>
-    <div class="inst-card rv" style="transition-delay:.5s">
-      <div class="inst-emoji">🧖</div>
+    <div class="inst-card rv" style="transition-delay:.5s"
+      data-num="05" data-access="Miembros Premium+"
+      data-name="Zona Sauna"
+      data-img="https://images.unsplash.com/photo-1531956656798-56686eeef3d4?w=800&q=80"
+      data-desc="Nuestra sauna finlandesa a 80–90°C es el complemento perfecto tras cada sesión de entrenamiento. Diseñada para la recuperación muscular acelerada, eliminación de toxinas y máximo bienestar. Incluida en membresías Premium y Elite."
+      data-feats="Sauna finlandesa auténtica a 80–90°C,Aforo privado y reserva por franjas,Zona de hidratación post-sauna,Protocolo de uso seguro incluido,Toallas y productos de cortesía disponibles"
+      data-capacity="Aforo: 6 personas" data-hours="Lun–Dom · Con reserva previa">
+      <div class="inst-icon-wrap"><div class="inst-emoji">🧖</div></div>
       <div class="inst-num">05</div>
       <div class="inst-name">Zona Sauna</div>
       <div class="inst-desc">Sauna finlandesa y zona de recuperación para maximizar tu bienestar post-entrenamiento.</div>
-      <div class="inst-tag">Miembros Premium+</div>
+      <div class="inst-hint">Ver más</div>
     </div>
   </div>
 </section>
@@ -887,64 +1336,62 @@ footer {
 <section class="sec" id="membresias">
   <div class="rv">
     <div class="sec-tag">Acceso al centro</div>
-    <h2 class="sec-title">Membresías</h2>
-    <p class="sec-desc">Sin permanencias. Sin letra pequeña. Empieza cuando quieras, cancela cuando quieras.</p>
+    <h2 class="sec-title">Elige tu nivel</h2>
+    <p class="sec-desc">Cada persona tiene objetivos distintos. Sin permanencias, sin precios públicos — cuéntanos tu meta y lo adaptamos a ti.</p>
   </div>
-  <div class="plans">
-    <div class="plan rv d1">
-      <div class="plan-name">Básico</div>
-      <div class="plan-price">
-        <span class="price-€">€</span>
-        <span class="price-n">35</span>
-        <span class="price-p">/mes</span>
-      </div>
-      <div class="plan-sep"></div>
-      <ul class="plan-feats">
-        <li class="y">Sala fitness libre</li>
-        <li class="y">2 clases grupales/semana</li>
-        <li class="y">Evaluación inicial</li>
-        <li class="n">Entrenamiento personal</li>
-        <li class="n">Fisioterapia con descuento</li>
-        <li class="n">Acceso sauna</li>
+  <div class="mem-grid">
+    <div class="mem-card rv d1">
+      <div class="mem-card-num">01</div>
+      <div class="mem-card-name">Acceso libre</div>
+      <div class="mem-card-tag">Para empezar</div>
+      <p class="mem-card-desc">Entrena a tu ritmo en una sala de fitness totalmente equipada. Clases grupales guiadas y evaluación inicial para que arranques con el pie derecho.</p>
+      <ul class="mem-card-feats">
+        <li>Sala de fitness sin límites</li>
+        <li>Clases grupales semanales</li>
+        <li>Evaluación física inicial</li>
+        <li>App de reservas y seguimiento</li>
       </ul>
-      <button class="btn-plan btn-plan-o" style="border:1px solid var(--steel-d)">Elegir básico</button>
+      <button class="mem-card-btn" data-plan="Membresía">Consultar condiciones →</button>
     </div>
-    <div class="plan feat rv d2">
-      <div class="plan-glow"></div>
-      <div class="plan-name">Premium</div>
-      <div class="plan-price">
-        <span class="price-€">€</span>
-        <span class="price-n">65</span>
-        <span class="price-p">/mes</span>
-      </div>
-      <div class="plan-sep"></div>
-      <ul class="plan-feats">
-        <li class="y">Sala fitness ilimitada</li>
-        <li class="y">Clases grupales ilimitadas</li>
-        <li class="y">2 sesiones PT/mes</li>
-        <li class="y">Fisioterapia con descuento</li>
-        <li class="y">Acceso sauna</li>
-        <li class="n">Nutrición personalizada</li>
+    <div class="mem-card mem-card-feat rv d2">
+      <div class="mem-card-badge">MÁS SOLICITADO</div>
+      <div class="mem-card-num">02</div>
+      <div class="mem-card-name">Plan completo</div>
+      <div class="mem-card-tag">Para quien quiere resultados</div>
+      <p class="mem-card-desc">La combinación que más funciona: entrenamiento libre, clases, sesiones con tu entrenador personal y acceso a la zona de recuperación.</p>
+      <ul class="mem-card-feats">
+        <li>Todo del plan Acceso</li>
+        <li>Sesiones de entrenamiento personal</li>
+        <li>Fisioterapia con descuento</li>
+        <li>Zona sauna & recovery</li>
       </ul>
-      <button class="btn-plan btn-plan-s">Elegir premium</button>
+      <button class="mem-card-btn mem-card-btn-feat" data-plan="Membresía">Consultar condiciones →</button>
     </div>
-    <div class="plan rv d3">
-      <div class="plan-name">Elite</div>
-      <div class="plan-price">
-        <span class="price-€">€</span>
-        <span class="price-n">110</span>
-        <span class="price-p">/mes</span>
-      </div>
-      <div class="plan-sep"></div>
-      <ul class="plan-feats">
-        <li class="y">Todo lo de Premium</li>
-        <li class="y">PT ilimitado</li>
-        <li class="y">Fisioterapia incluida (2/mes)</li>
-        <li class="y">Plan nutricional</li>
-        <li class="y">Acceso prioritario</li>
-        <li class="y">Análisis mensual de rendimiento</li>
+    <div class="mem-card rv d3">
+      <div class="mem-card-num">03</div>
+      <div class="mem-card-name">Alto rendimiento</div>
+      <div class="mem-card-tag">Para deportistas exigentes</div>
+      <p class="mem-card-desc">El programa más completo de ABAY. PT ilimitado, fisioterapia incluida, plan nutricional y análisis mensual. Todo para que nada te frene.</p>
+      <ul class="mem-card-feats">
+        <li>Todo del plan Completo</li>
+        <li>Entrenamiento personal ilimitado</li>
+        <li>Fisioterapia incluida (2 sesiones/mes)</li>
+        <li>Plan nutricional personalizado</li>
+        <li>Análisis mensual de rendimiento</li>
       </ul>
-      <button class="btn-plan btn-plan-o" style="border:1px solid var(--steel-d)">Elegir elite</button>
+      <button class="mem-card-btn" data-plan="Membresía">Consultar condiciones →</button>
+    </div>
+  </div>
+  <div class="mem-banner rv">
+    <div class="mem-banner-glow"></div>
+    <div class="mem-banner-content">
+      <div class="mem-banner-tag">Sin letra pequeña · Sin permanencias · Primera visita gratuita</div>
+      <div class="mem-banner-title">¿No sabes<br>por dónde empezar?</div>
+      <p class="mem-banner-desc">Ven a conocer las instalaciones sin ningún compromiso. Te orientamos y te proponemos el plan que mejor encaja con tu objetivo y presupuesto.</p>
+    </div>
+    <div class="mem-banner-cta">
+      <button class="btn-submit" id="memBannerBtn">Pedir información →</button>
+      <div class="mem-banner-hint">Respuesta en menos de 24 horas</div>
     </div>
   </div>
 </section>
@@ -959,12 +1406,17 @@ footer {
     <p class="sec-desc">4 especialistas con un objetivo común: que salgas cada día mejor de lo que entraste.</p>
   </div>
   <div class="team-grid">
-    <div class="trainer rv d1">
-      <div class="trainer-ph">💪
-        <div class="trainer-overlay">
-          <div class="trainer-bio">Especialista en fuerza, hipertrofia y recomposición corporal. Más de 5 años trabajando con atletas y población general.</div>
-        </div>
+    <div class="trainer rv d1"
+      data-name="Carlos Pérez"
+      data-role="Entrenador Personal"
+      data-bio="Especialista en fuerza, hipertrofia y recomposición corporal. Más de 5 años trabajando con atletas y población general. Su metodología combina periodización avanzada con seguimiento individualizado para garantizar resultados reales."
+      data-img="https://randomuser.me/api/portraits/men/32.jpg"
+      data-tags="Fuerza,Hipertrofia,Funcional">
+      <div class="trainer-ph">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Pérez" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+        <div class="trainer-overlay"></div>
       </div>
+      <div class="trainer-click-hint">Ver perfil</div>
       <div class="trainer-info">
         <div class="trainer-name">Carlos Pérez</div>
         <div class="trainer-role">Entrenador Personal</div>
@@ -975,12 +1427,17 @@ footer {
         </div>
       </div>
     </div>
-    <div class="trainer rv d2">
-      <div class="trainer-ph">🧘
-        <div class="trainer-overlay">
-          <div class="trainer-bio">Instructora certificada en yoga vinyasa, pilates mat y zumba. Especialista en movilidad y bienestar integral.</div>
-        </div>
+    <div class="trainer rv d2"
+      data-name="Sandra Martín"
+      data-role="Instructora Grupal"
+      data-bio="Instructora certificada en yoga vinyasa, pilates mat y zumba. Especialista en movilidad y bienestar integral. Con más de 8 años de experiencia, sus clases combinan técnica, respiración y motivación para que cada sesión sea una experiencia única."
+      data-img="https://randomuser.me/api/portraits/women/44.jpg"
+      data-tags="Yoga,Pilates,Zumba,Movilidad">
+      <div class="trainer-ph">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sandra Martín" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+        <div class="trainer-overlay"></div>
       </div>
+      <div class="trainer-click-hint">Ver perfil</div>
       <div class="trainer-info">
         <div class="trainer-name">Sandra Martín</div>
         <div class="trainer-role">Instructora Grupal</div>
@@ -991,12 +1448,17 @@ footer {
         </div>
       </div>
     </div>
-    <div class="trainer rv d3">
-      <div class="trainer-ph">⚽
-        <div class="trainer-overlay">
-          <div class="trainer-bio">Preparador físico con experiencia en fútbol semiprofesional. Metodología basada en datos y periodización deportiva.</div>
-        </div>
+    <div class="trainer rv d3"
+      data-name="Marcos Torres"
+      data-role="Preparador Físico"
+      data-bio="Preparador físico con experiencia en fútbol semiprofesional. Metodología basada en datos y periodización deportiva. Especializado en rendimiento para deportes de equipo, trabaja con jugadores de todas las categorías para maximizar su potencial físico y técnico."
+      data-img="https://randomuser.me/api/portraits/men/75.jpg"
+      data-tags="Fútbol,Rendimiento,HIIT,Periodización">
+      <div class="trainer-ph">
+        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Marcos Torres" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+        <div class="trainer-overlay"></div>
       </div>
+      <div class="trainer-click-hint">Ver perfil</div>
       <div class="trainer-info">
         <div class="trainer-name">Marcos Torres</div>
         <div class="trainer-role">Preparador Físico</div>
@@ -1007,12 +1469,17 @@ footer {
         </div>
       </div>
     </div>
-    <div class="trainer rv d4">
-      <div class="trainer-ph">🩺
-        <div class="trainer-overlay">
-          <div class="trainer-bio">Fisioterapeuta colegiada con especialización en lesiones deportivas, rehabilitación postquirúrgica y terapia manual.</div>
-        </div>
+    <div class="trainer rv d4"
+      data-name="Dra. Ana López"
+      data-role="Fisioterapeuta"
+      data-bio="Fisioterapeuta colegiada con especialización en lesiones deportivas, rehabilitación postquirúrgica y terapia manual. Combina técnicas modernas de fisioterapia con un enfoque preventivo para mantener a los deportistas en su mejor estado físico y acelerar su recuperación."
+      data-img="https://randomuser.me/api/portraits/women/68.jpg"
+      data-tags="Rehabilitación,Deportiva,Manual,Prevención">
+      <div class="trainer-ph">
+        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Dra. Ana López" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+        <div class="trainer-overlay"></div>
       </div>
+      <div class="trainer-click-hint">Ver perfil</div>
       <div class="trainer-info">
         <div class="trainer-name">Dra. Ana López</div>
         <div class="trainer-role">Fisioterapeuta</div>
@@ -1037,30 +1504,39 @@ footer {
   </div>
   <div class="well-grid">
     <div class="well-card big rv d1">
-      <div class="well-bar"></div>
-      <div class="well-bg-emoji">🧖</div>
-      <span class="well-icon">🧖</span>
-      <div class="well-title">Zona Sauna</div>
-      <div class="well-desc">Nuestra sauna finlandesa a 80–90°C es el complemento perfecto a cada sesión de entrenamiento. Los beneficios van más allá de la relajación.</div>
-      <ul class="well-list">
-        <li>Recuperación muscular acelerada</li>
-        <li>Eliminación de toxinas</li>
-        <li>Mejora de la circulación</li>
-        <li>Reducción del estrés y cortisol</li>
-        <li>Mejora de la calidad del sueño</li>
-      </ul>
+      <div class="well-photo">
+        <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=900&q=80" alt="Zona Sauna ABAY">
+      </div>
+      <div class="well-content">
+        <div class="well-bar"></div>
+        <div class="well-title">Zona Sauna</div>
+        <div class="well-desc">Nuestra sauna finlandesa a 80–90°C es el complemento perfecto a cada sesión de entrenamiento. Los beneficios van más allá de la relajación.</div>
+        <ul class="well-list">
+          <li>Recuperación muscular acelerada</li>
+          <li>Eliminación de toxinas</li>
+          <li>Mejora de la circulación</li>
+          <li>Reducción del estrés y cortisol</li>
+          <li>Mejora de la calidad del sueño</li>
+        </ul>
+      </div>
     </div>
     <div class="well-card rv d2">
-      <div class="well-bg-emoji">🩺</div>
-      <span class="well-icon">🩺</span>
-      <div class="well-title">Gabinete Fisio</div>
-      <div class="well-desc">Equipamiento profesional para diagnóstico y tratamiento de lesiones. Tu cuerpo merece atención especializada.</div>
+      <div class="well-photo">
+        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=900&q=80" alt="Gabinete Fisio ABAY">
+      </div>
+      <div class="well-content">
+        <div class="well-title">Gabinete Fisio</div>
+        <div class="well-desc">Equipamiento profesional para diagnóstico y tratamiento de lesiones. Tu cuerpo merece atención especializada.</div>
+      </div>
     </div>
     <div class="well-card rv d3">
-      <div class="well-bg-emoji">🎯</div>
-      <span class="well-icon">🧊</span>
-      <div class="well-title">Recovery Zone</div>
-      <div class="well-desc">Zona de estiramientos guiados, foam rolling y técnicas de recuperación activa supervisadas por nuestro equipo.</div>
+      <div class="well-photo">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=900&q=80" alt="Recovery Zone ABAY">
+      </div>
+      <div class="well-content">
+        <div class="well-title">Recovery Zone</div>
+        <div class="well-desc">Zona de estiramientos guiados, foam rolling y técnicas de recuperación activa supervisadas por nuestro equipo.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1131,20 +1607,20 @@ footer {
     <div>
       <div class="foot-h">Servicios</div>
       <ul class="foot-links">
-        <li><a href="#">Clases grupales</a></li>
-        <li><a href="#">Fisioterapia</a></li>
-        <li><a href="#">Entrenamiento personal</a></li>
-        <li><a href="#">Preparación deportiva</a></li>
-        <li><a href="#">Zona sauna</a></li>
+        <li><a href="#clases">Clases grupales</a></li>
+        <li><a href="#servicios">Fisioterapia</a></li>
+        <li><a href="#servicios">Entrenamiento personal</a></li>
+        <li><a href="#servicios">Preparación deportiva</a></li>
+        <li><a href="#wellness">Zona sauna</a></li>
       </ul>
     </div>
     <div>
       <div class="foot-h">Centro</div>
       <ul class="foot-links">
-        <li><a href="#">Nosotros</a></li>
-        <li><a href="#">Equipo</a></li>
-        <li><a href="#">Instalaciones</a></li>
-        <li><a href="#">Membresías</a></li>
+        <li><a href="#hero">Nosotros</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+        <li><a href="#instalaciones">Instalaciones</a></li>
+        <li><a href="#membresias">Membresías</a></li>
       </ul>
     </div>
     <div>
@@ -1166,20 +1642,132 @@ footer {
   </div>
 </footer>
 
+<!-- INST MODAL -->
+<div class="inst-modal-bg" id="instModal">
+  <div class="inst-modal">
+    <img class="inst-modal-img" id="instModalImg" src="" alt="">
+    <div class="inst-modal-body">
+      <div class="inst-modal-num" id="instModalNum"></div>
+      <div class="inst-modal-tag" id="instModalAccess"></div>
+      <div class="inst-modal-name" id="instModalName"></div>
+      <p class="inst-modal-desc" id="instModalDesc"></p>
+      <ul class="inst-modal-feats" id="instModalFeats"></ul>
+      <div class="inst-modal-info">
+        <div class="inst-modal-info-item">
+          <div class="inst-modal-info-label">Aforo</div>
+          <div class="inst-modal-info-val" id="instModalCap"></div>
+        </div>
+        <div class="inst-modal-info-item">
+          <div class="inst-modal-info-label">Horario</div>
+          <div class="inst-modal-info-val" id="instModalHours"></div>
+        </div>
+      </div>
+    </div>
+    <button class="inst-modal-close" id="instModalClose">✕</button>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="r-modal-bg" id="authModal">
+  <div class="r-modal">
+    <div class="r-modal-tag">Acceso socios</div>
+    <div class="r-modal-title">Introduce tu<br>número de socio</div>
+    <div class="r-modal-desc">Solo socios en activo pueden reservar clases. Introduce tu número de socio para continuar.</div>
+    <input id="socioInput" class="fi" type="text" placeholder="Ej: 1042" maxlength="6" autocomplete="off">
+    <div id="socioError" class="r-modal-error"></div>
+    <button class="btn-submit" id="socioSubmit">Verificar socio</button>
+    <button class="r-modal-cancel" id="authClose">Cancelar</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="r-modal-bg" id="confirmModal">
+  <div class="r-modal">
+    <div class="r-modal-tag">Confirmar reserva</div>
+    <div class="r-modal-title" id="confClsName"></div>
+    <div class="r-modal-meta" id="confClsMeta"></div>
+    <div class="r-modal-notice">La reserva queda asociada a tu número de socio. No se almacenan ni muestran datos personales.</div>
+    <button class="btn-submit" id="confirmBtn">Confirmar reserva</button>
+    <button class="r-modal-cancel" id="confirmClose">Cancelar</button>
+  </div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="r-modal-bg" id="cancelModal">
+  <div class="r-modal">
+    <div class="r-modal-tag" style="color:#e05a5a">Cancelar reserva</div>
+    <div class="r-modal-title" id="cancelClsName"></div>
+    <div class="r-modal-meta" id="cancelClsMeta"></div>
+    <div class="r-modal-notice">Si cancelas, la plaza quedará libre para otros socios.</div>
+    <button class="btn-submit" id="cancelConfirmBtn" style="background:linear-gradient(135deg,#c0392b,#e05a5a)">Sí, cancelar reserva</button>
+    <button class="r-modal-cancel" id="cancelClose">Mantener reserva</button>
+  </div>
+</div>
+
+<!-- TRAINER MODAL -->
+<div class="t-modal-bg" id="trainerModal">
+  <div class="t-modal">
+    <img class="t-modal-img" id="tModalImg" src="" alt="">
+    <div class="t-modal-body">
+      <div class="t-modal-accent"></div>
+      <div class="t-modal-role" id="tModalRole"></div>
+      <div class="t-modal-name" id="tModalName"></div>
+      <div class="t-modal-bio" id="tModalBio"></div>
+      <div class="t-modal-tags" id="tModalTags"></div>
+    </div>
+    <button class="t-modal-close" id="tModalClose">✕</button>
+  </div>
+</div>
+
+<!-- SERVICE MODAL -->
+<div class="srv-modal-bg" id="srvModal">
+  <div class="srv-modal">
+    <div class="srv-modal-icon" id="srvModalIcon"></div>
+    <div class="srv-modal-tag">Servicio ABAY</div>
+    <div class="srv-modal-name" id="srvModalName"></div>
+    <div class="srv-modal-sub" id="srvModalSub"></div>
+    <div class="srv-modal-q">¿Quieres recibir información personalizada?</div>
+    <div class="srv-modal-btns">
+      <button class="btn-submit" id="srvModalYes">Sí, quiero información</button>
+      <button class="srv-modal-cancel" id="srvModalNo">Ahora no</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// LOADER
+// LOADER + CONTADOR KPIs
 window.addEventListener('load', () => {
   setTimeout(() => document.getElementById('loader').classList.add('done'), 2000);
+
+  // Contador de KPIs — arranca cuando aparecen (3.5s + buffer)
+  setTimeout(() => {
+    const kpiData = [
+      { el: document.querySelectorAll('.kpi-n')[0], to: 4,  suffix: ''  },
+      { el: document.querySelectorAll('.kpi-n')[1], to: 5,  suffix: ''  },
+      { el: document.querySelectorAll('.kpi-n')[2], to: 7,  suffix: 'd' },
+    ];
+    kpiData.forEach(k => {
+      let start = null;
+      const dur = 900;
+      (function step(ts) {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / dur, 1);
+        k.el.textContent = Math.floor(p * k.to) + k.suffix;
+        if (p < 1) requestAnimationFrame(step);
+        else k.el.textContent = k.to + k.suffix;
+      })(performance.now());
+    });
+  }, 3600);
 });
 
 // CURSOR
-const cur = document.getElementById('cur'), ring = document.getElementById('cur-r');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=(mx-5)+'px'; cur.style.top=(my-5)+'px'; });
-function animRing() { rx+=(mx-rx-20)*.12; ry+=(my-ry-20)*.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); }
-animRing();
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => {
+  cur.style.left=(e.clientX-9)+'px';
+  cur.style.top=(e.clientY-9)+'px';
+});
 document.querySelectorAll('a,button,.inst-card,.trainer,.well-card,.srv-item').forEach(el => {
-  el.addEventListener('mouseenter', () => cur.style.transform='scale(3)');
+  el.addEventListener('mouseenter', () => cur.style.transform='scale(1.5)');
   el.addEventListener('mouseleave', () => cur.style.transform='scale(1)');
 });
 
@@ -1239,13 +1827,26 @@ const sched = {
   ],
 };
 
+// TODO: validación de socios — conectar con base de datos cuando esté disponible
+
+let socioActual = sessionStorage.getItem('abay_socio') || null;
+let misReservas  = new Set(JSON.parse(sessionStorage.getItem('abay_reservas') || '[]'));
+let diaActual    = 'lun';
+let pendingReserva = null; // {day, idx}
+
 function renderCls(day) {
   const grid = document.getElementById('clsGrid');
-  const cls = sched[day] || [];
-  grid.innerHTML = cls.map(c => {
-    const pct = Math.round((c.sp/c.tot)*100);
+  const cls  = sched[day] || [];
+  grid.innerHTML = cls.map((c, idx) => {
+    const key   = `${day}-${idx}`;
+    const pct   = Math.round((c.sp / c.tot) * 100);
     const avail = c.tot - c.sp;
     const urgency = avail <= 3 ? '🔴' : avail <= 6 ? '🟡' : '🟢';
+    let btnClass, btnText;
+    if (avail <= 0)               { btnClass = 'completo';  btnText = 'Sin plazas'; }
+    else if (misReservas.has(key)){ btnClass = 'reservado'; btnText = 'Reservado ✓'; }
+    else if (!socioActual)        { btnClass = 'login-req'; btnText = 'Identificarse'; }
+    else                          { btnClass = '';          btnText = 'Reservar'; }
     return `<div class="cls-card">
       <div class="cls-time">${c.t}</div>
       <div class="cls-name">${c.n}</div>
@@ -1253,18 +1854,341 @@ function renderCls(day) {
       <div class="cls-bar"><div class="cls-fill" style="width:${pct}%"></div></div>
       <div class="cls-footer">
         <span class="cls-spots">${urgency} ${avail} plazas</span>
-        <button class="btn-cls">Reservar</button>
+        <button class="btn-cls ${btnClass}" data-day="${day}" data-idx="${idx}">${btnText}</button>
       </div>
     </div>`;
   }).join('');
+
+  grid.querySelectorAll('.btn-cls:not(.completo)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const d = btn.dataset.day, i = parseInt(btn.dataset.idx);
+      if (btn.classList.contains('reservado')) {
+        abrirCancelModal(d, i);
+      } else if (btn.classList.contains('login-req')) {
+        pendingReserva = {day: d, idx: i};
+        abrirAuth();
+      } else {
+        abrirConfirm(d, i);
+      }
+    });
+  });
 }
 
 function setDay(btn, day) {
   document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('on'));
   btn.classList.add('on');
+  diaActual = day;
   renderCls(day);
 }
 renderCls('lun');
+
+// ── NAV ──
+function actualizarNav() {
+  const navRight = document.querySelector('.nav-right');
+  if (socioActual) {
+    navRight.innerHTML = `
+      <div class="nav-socio">
+        <span class="nav-socio-num">SOCIO #${socioActual}</span>
+        <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
+      </div>`;
+    document.getElementById('btnLogout').addEventListener('click', logout);
+  } else {
+    navRight.innerHTML = `
+      <a href="#contacto" class="btn-nav-ghost">Reservar visita</a>
+      <a href="#membresias" class="btn-nav-solid">Únete</a>`;
+  }
+}
+actualizarNav();
+
+function logout() {
+  sessionStorage.removeItem('abay_socio');
+  sessionStorage.removeItem('abay_reservas');
+  socioActual  = null;
+  misReservas  = new Set();
+  actualizarNav();
+  renderCls(diaActual);
+}
+
+// ── AUTH MODAL ──
+const authModal   = document.getElementById('authModal');
+const socioInput  = document.getElementById('socioInput');
+const socioError  = document.getElementById('socioError');
+
+function abrirAuth() {
+  socioInput.value = '';
+  socioError.textContent = '';
+  authModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => socioInput.focus(), 300);
+}
+function cerrarAuth() {
+  authModal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('authClose').addEventListener('click', () => {
+  pendingReserva = null;
+  cerrarAuth();
+});
+authModal.addEventListener('click', e => { if (e.target === authModal) { pendingReserva = null; cerrarAuth(); } });
+
+function verificarSocio() {
+  const num = socioInput.value.trim();
+  if (!num) { socioError.textContent = 'Introduce tu número de socio.'; return; }
+  if (!/^\d{3,6}$/.test(num)) {
+    socioError.textContent = 'Introduce un número válido (3–6 dígitos).';
+    socioInput.focus();
+    return;
+  }
+  // TODO: conectar con base de datos de socios cuando esté disponible
+  // Guardamos el número solo en memoria hasta que se confirme una reserva
+  socioActual = num;
+  cerrarAuth();
+  if (pendingReserva) {
+    const {day, idx} = pendingReserva;
+    pendingReserva = null;
+    setTimeout(() => abrirConfirm(day, idx), 200);
+  }
+}
+
+document.getElementById('socioSubmit').addEventListener('click', verificarSocio);
+socioInput.addEventListener('keydown', e => { if (e.key === 'Enter') verificarSocio(); });
+
+// ── CONFIRM MODAL ──
+const confirmModal = document.getElementById('confirmModal');
+let reservaActual  = null; // {day, idx}
+
+function abrirConfirm(day, idx) {
+  const c = sched[day][idx];
+  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
+  document.getElementById('confClsName').textContent = c.n;
+  document.getElementById('confClsMeta').innerHTML =
+    `${dias[day]} · ${c.t} · ${c.dur}<br><span style="opacity:.7">${c.tr}</span>`;
+  reservaActual = {day, idx};
+  confirmModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarConfirm() {
+  confirmModal.classList.remove('open');
+  document.body.style.overflow = '';
+  reservaActual = null;
+  // Si aún no ha confirmado ninguna reserva, anular el login temporal
+  if (misReservas.size === 0) {
+    socioActual = null;
+  }
+}
+
+document.getElementById('confirmClose').addEventListener('click', cerrarConfirm);
+confirmModal.addEventListener('click', e => { if (e.target === confirmModal) cerrarConfirm(); });
+
+document.getElementById('confirmBtn').addEventListener('click', () => {
+  if (!reservaActual) return;
+  const {day, idx} = reservaActual;
+  const key = `${day}-${idx}`;
+  sched[day][idx].sp = Math.min(sched[day][idx].sp + 1, sched[day][idx].tot);
+  misReservas.add(key);
+  sessionStorage.setItem('abay_reservas', JSON.stringify([...misReservas]));
+  // Solo aquí guardamos la sesión y mostramos el socio en el nav
+  sessionStorage.setItem('abay_socio', socioActual);
+  confirmModal.classList.remove('open');
+  document.body.style.overflow = '';
+  reservaActual = null;
+  actualizarNav();
+  renderCls(day);
+});
+
+// ── CANCEL MODAL ──
+const cancelModal = document.getElementById('cancelModal');
+let cancelActual = null; // {day, idx}
+
+function abrirCancelModal(day, idx) {
+  const c = sched[day][idx];
+  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
+  document.getElementById('cancelClsName').textContent = c.n;
+  document.getElementById('cancelClsMeta').innerHTML =
+    `${dias[day]} · ${c.t} · ${c.dur}<br><span style="opacity:.7">${c.tr}</span>`;
+  cancelActual = {day, idx};
+  cancelModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarCancelModal() {
+  cancelModal.classList.remove('open');
+  document.body.style.overflow = '';
+  cancelActual = null;
+}
+
+document.getElementById('cancelClose').addEventListener('click', cerrarCancelModal);
+cancelModal.addEventListener('click', e => { if (e.target === cancelModal) cerrarCancelModal(); });
+
+document.getElementById('cancelConfirmBtn').addEventListener('click', () => {
+  if (!cancelActual) return;
+  const {day, idx} = cancelActual;
+  const key = `${day}-${idx}`;
+  sched[day][idx].sp = Math.max(sched[day][idx].sp - 1, 0);
+  misReservas.delete(key);
+  sessionStorage.setItem('abay_reservas', JSON.stringify([...misReservas]));
+  cerrarCancelModal();
+  renderCls(day);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cerrarAuth(); cerrarConfirm(); cerrarCancelModal();
+    instModal.classList.remove('open');
+    document.body.style.overflow='';
+  }
+});
+
+// INST MODAL
+const instModal = document.getElementById('instModal');
+document.getElementById('instModalClose').addEventListener('click', () => {
+  instModal.classList.remove('open'); document.body.style.overflow='';
+});
+instModal.addEventListener('click', e => {
+  if (e.target === instModal) { instModal.classList.remove('open'); document.body.style.overflow=''; }
+});
+document.querySelectorAll('.inst-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.getElementById('instModalImg').src   = card.dataset.img;
+    document.getElementById('instModalImg').alt   = card.dataset.name;
+    document.getElementById('instModalNum').textContent    = card.dataset.num;
+    document.getElementById('instModalAccess').textContent = card.dataset.access;
+    document.getElementById('instModalName').textContent   = card.dataset.name;
+    document.getElementById('instModalDesc').textContent   = card.dataset.desc;
+    document.getElementById('instModalCap').textContent    = card.dataset.capacity;
+    document.getElementById('instModalHours').textContent  = card.dataset.hours;
+    document.getElementById('instModalFeats').innerHTML =
+      card.dataset.feats.split(',').map(f => `<li>${f.trim()}</li>`).join('');
+    instModal.classList.add('open');
+    document.body.style.overflow='hidden';
+  });
+});
+
+// TRAINER MODAL
+const modal = document.getElementById('trainerModal');
+const tClose = document.getElementById('tModalClose');
+
+document.querySelectorAll('.trainer').forEach(card => {
+  card.addEventListener('click', () => {
+    document.getElementById('tModalImg').src   = card.dataset.img;
+    document.getElementById('tModalImg').alt   = card.dataset.name;
+    document.getElementById('tModalName').textContent = card.dataset.name;
+    document.getElementById('tModalRole').textContent = card.dataset.role;
+    document.getElementById('tModalBio').textContent  = card.dataset.bio;
+    document.getElementById('tModalTags').innerHTML   =
+      card.dataset.tags.split(',')
+        .map(t => `<span class="t-modal-tag">${t.trim()}</span>`)
+        .join('');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+});
+
+function closeModal() {
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+tClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+// ── SERVICE MODAL ──
+const srvModal = document.getElementById('srvModal');
+const srvModalIcon = document.getElementById('srvModalIcon');
+const srvModalName = document.getElementById('srvModalName');
+const srvModalSub  = document.getElementById('srvModalSub');
+const srvModalYes  = document.getElementById('srvModalYes');
+const srvModalNo   = document.getElementById('srvModalNo');
+
+const srvSelectMap = {
+  'Clases Grupales':         'Clases grupales',
+  'Preparación Deportiva':   'Preparación deportiva',
+  'Entrenamiento Personal':  'Entrenamiento personal',
+  'Recuperación & Wellness': 'Zona sauna / wellness',
+  'Seguimiento Digital':     'Membresía',
+  'Fisioterapia Avanzada':   'Fisioterapia',
+};
+
+let srvPendingSelect = null;
+
+function abrirSrvModal(icon, name, desc) {
+  srvModalIcon.textContent = icon;
+  srvModalName.textContent = name;
+  srvModalSub.textContent  = desc;
+  srvPendingSelect = srvSelectMap[name] || null;
+  srvModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarSrvModal() {
+  srvModal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+srvModalNo.addEventListener('click', cerrarSrvModal);
+srvModal.addEventListener('click', e => { if (e.target === srvModal) cerrarSrvModal(); });
+
+srvModalYes.addEventListener('click', () => {
+  cerrarSrvModal();
+  const sel = document.querySelector('.fs');
+  if (sel && srvPendingSelect) {
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text === srvPendingSelect) { sel.selectedIndex = i; break; }
+    }
+  }
+  setTimeout(() => {
+    document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+    if (sel) {
+      sel.style.transition = 'box-shadow .3s';
+      sel.style.boxShadow = '0 0 0 2px var(--accent)';
+      setTimeout(() => { sel.style.boxShadow = ''; }, 1600);
+    }
+  }, 300);
+});
+
+document.querySelectorAll('.srv-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const icon = item.querySelector('.srv-item-icon').textContent;
+    const name = item.querySelector('.srv-item-name').textContent;
+    const desc = item.querySelector('.srv-item-desc').textContent;
+    abrirSrvModal(icon, name, desc);
+  });
+});
+
+const srvBigCard = document.querySelector('.srv-big-card');
+if (srvBigCard) {
+  srvBigCard.addEventListener('click', () => {
+    abrirSrvModal('🩺', 'Fisioterapia Avanzada', 'Tratamiento personalizado para recuperación de lesiones, rehabilitación funcional y prevención. Tu cuerpo, en manos expertas.');
+  });
+}
+
+// ── MEMBRESÍAS CTA ──
+function irAContactoConPlan(plan) {
+  const sel = document.querySelector('.fs');
+  if (sel && plan) {
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].text === plan) { sel.selectedIndex = i; break; }
+    }
+  }
+  document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+  if (sel) {
+    setTimeout(() => {
+      sel.style.transition = 'box-shadow .3s';
+      sel.style.boxShadow = '0 0 0 2px var(--accent)';
+      setTimeout(() => { sel.style.boxShadow = ''; }, 1600);
+    }, 600);
+  }
+}
+
+document.querySelectorAll('.mem-card-btn').forEach(btn => {
+  btn.addEventListener('click', () => irAContactoConPlan(btn.dataset.plan));
+});
+
+const memBannerBtn = document.getElementById('memBannerBtn');
+if (memBannerBtn) {
+  memBannerBtn.addEventListener('click', () => irAContactoConPlan('Visita gratuita al centro'));
+}
 </script>
 </body>
 </html>
