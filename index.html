@@ -1790,7 +1790,7 @@ const obs = new IntersectionObserver(entries => {
 document.querySelectorAll('.rv').forEach(el => obs.observe(el));
 
 // SCHEDULE
-const sched = {
+window.sched = {
   lun: [
     {t:'07:30',n:'Yoga Flow',tr:'Sandra M.',dur:'60 min',sp:8,tot:12},
     {t:'09:00',n:'Pilates Core',tr:'Ana L.',dur:'50 min',sp:5,tot:10},
@@ -1841,7 +1841,7 @@ let pendingReserva = null; // {day, idx}
 
 function renderCls(day) {
   const grid = document.getElementById('clsGrid');
-  const cls  = sched[day] || [];
+  const cls  = (window.sched || {})[day] || [];
   grid.innerHTML = cls.map((c, idx) => {
     const key   = `${day}-${idx}`;
     const pct   = Math.round((c.sp / c.tot) * 100);
@@ -2233,5 +2233,6 @@ if (memBannerBtn) {
 
 <script src="config.runtime.js"></script>
 <script src="js/crm.js"></script>
+<script src="js/schedule.js"></script>
 </body>
 </html>
