@@ -4,8 +4,23 @@
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   function cfg() {
-    if (!window.CRM_CONFIG) throw new Error('config.js not loaded');
+    if (!window.CRM_CONFIG) throw new Error('config.runtime.js not loaded');
     return window.CRM_CONFIG;
+  }
+
+  // If config is missing, disable forms and show a friendly message
+  function disableFormsIfNoConfig() {
+    if (window.CRM_CONFIG) return;
+    console.error('[CRM] window.CRM_CONFIG not found — config.runtime.js missing or failed to load.');
+    var msg = 'Formulario temporalmente no disponible. Inténtalo más tarde.';
+    ['leadForm-feedback', 'bookingForm-feedback'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.className = 'form-feedback form-feedback--error'; el.textContent = msg; }
+    });
+    ['lf-submit', 'bf-submit'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.disabled = true;
+    });
   }
 
   function apiBase() {
@@ -211,6 +226,7 @@
   // ── Init ──────────────────────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', function () {
+    disableFormsIfNoConfig();
     initLeadForm();
     initBookingForm();
 
