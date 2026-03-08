@@ -23,15 +23,22 @@
   }
 
   async function postCRM(path, body) {
-    const { apiKey } = cfg();
-    const res = await fetch(apiBase() + path, {
+    var url = apiBase() + path;
+    var apiKey = cfg().apiKey;
+    var res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
       body: JSON.stringify(body)
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || err.message || 'Error del servidor (' + res.status + ')');
+      var rawText = await res.text().catch(function () { return ''; });
+      var errBody = {};
+      try { errBody = JSON.parse(rawText); } catch (_) {}
+      var detail = errBody.error || errBody.message || rawText || 'Sin detalle';
+      // Safe debug — no apiKey logged
+      console.warn('[CRM] POST ' + url + ' → HTTP ' + res.status);
+      console.warn('[CRM] Response body:', detail);
+      throw new Error('Error (' + res.status + '): ' + detail);
     }
     return res.json();
   }
@@ -99,8 +106,12 @@
         });
         setFeedback(feedback, 'success', '¡Gracias! Nos pondremos en contacto contigo pronto.');
         form.reset();
-      } catch (_) {
-        setFeedback(feedback, 'error', 'Ha ocurrido un error. Inténtalo de nuevo o escríbenos a info@abay.es');
+      } catch (err) {
+        var msg = (err instanceof TypeError)
+          ? 'No se pudo conectar con el servidor. Posible bloqueo CORS o red.'
+          : (err.message || 'Error desconocido');
+        console.warn('[CRM] Lead form error:', msg);
+        setFeedback(feedback, 'error', msg);
       } finally {
         setLoading(btn, false);
       }
@@ -162,8 +173,12 @@
         setFeedback(feedback, 'success', '¡Solicitud enviada! Te contactaremos para confirmar la cita.');
         form.reset();
         setTimeout(closeBookingModal, 3000);
-      } catch (_) {
-        setFeedback(feedback, 'error', 'Ha ocurrido un error. Inténtalo de nuevo o escríbenos a info@abay.es');
+      } catch (err) {
+        var msg = (err instanceof TypeError)
+          ? 'No se pudo conectar con el servidor. Posible bloqueo CORS o red.'
+          : (err.message || 'Error desconocido');
+        console.warn('[CRM] Booking form error:', msg);
+        setFeedback(feedback, 'error', msg);
       } finally {
         setLoading(btn, false);
       }
