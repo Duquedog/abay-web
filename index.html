@@ -1676,9 +1676,15 @@ footer {
 <div class="r-modal-bg" id="authModal">
   <div class="r-modal">
     <div class="r-modal-tag">Acceso socios</div>
-    <div class="r-modal-title">Introduce tu<br>número de socio</div>
-    <div class="r-modal-desc">Solo socios en activo pueden reservar clases. Introduce tu número de socio para continuar.</div>
-    <input id="socioInput" class="fi" type="text" placeholder="Ej: 1042" maxlength="6" autocomplete="off">
+    <div class="r-modal-title">Introduce tu<br>código de acceso</div>
+    <div class="r-modal-desc">Solo socios en activo pueden reservar clases. Introduce tu código de acceso para continuar.</div>
+    <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin:12px 0">
+      <input id="socioPrefix" class="fi" type="text" maxlength="2" placeholder="PW" autocomplete="off"
+             style="text-transform:uppercase;width:60px;text-align:center;letter-spacing:4px;font-size:1.2rem">
+      <span style="font-size:1.4rem;font-weight:700;color:var(--accent,#4fc3f7)">–</span>
+      <input id="socioSuffix" class="fi" type="text" maxlength="4" placeholder="AB3F" autocomplete="off"
+             style="text-transform:uppercase;width:90px;text-align:center;letter-spacing:4px;font-size:1.2rem">
+    </div>
     <div id="socioError" class="r-modal-error"></div>
     <button class="btn-submit" id="socioSubmit">Verificar socio</button>
     <button class="r-modal-cancel" id="authClose">Cancelar</button>
@@ -1691,7 +1697,7 @@ footer {
     <div class="r-modal-tag">Confirmar reserva</div>
     <div class="r-modal-title" id="confClsName"></div>
     <div class="r-modal-meta" id="confClsMeta"></div>
-    <div class="r-modal-notice">La reserva queda asociada a tu número de socio. No se almacenan ni muestran datos personales.</div>
+    <div class="r-modal-notice">La reserva queda asociada a tu código de acceso. No se almacenan ni muestran datos personales.</div>
     <button class="btn-submit" id="confirmBtn">Confirmar reserva</button>
     <button class="r-modal-cancel" id="confirmClose">Cancelar</button>
   </div>
@@ -1915,16 +1921,41 @@ function logout() {
 }
 
 // ── AUTH MODAL ──
-const authModal   = document.getElementById('authModal');
-const socioInput  = document.getElementById('socioInput');
-const socioError  = document.getElementById('socioError');
+const authModal    = document.getElementById('authModal');
+const socioPrefix  = document.getElementById('socioPrefix');
+const socioSuffix  = document.getElementById('socioSuffix');
+const socioError   = document.getElementById('socioError');
+
+// Auto-advance: jump to suffix field when 2 chars typed in prefix
+socioPrefix.addEventListener('input', () => {
+  socioPrefix.value = socioPrefix.value.toUpperCase();
+  if (socioPrefix.value.length === 2) socioSuffix.focus();
+});
+socioSuffix.addEventListener('input', () => {
+  socioSuffix.value = socioSuffix.value.toUpperCase();
+});
+
+// Paste handler: pasting "XX-XXXX" into either field fills both
+function handleCodePaste(e) {
+  const pasted = (e.clipboardData || window.clipboardData).getData('text').trim().toUpperCase();
+  if (pasted.includes('-')) {
+    e.preventDefault();
+    const parts = pasted.split('-');
+    socioPrefix.value = parts[0].slice(0, 2);
+    socioSuffix.value = (parts[1] || '').slice(0, 4);
+    socioSuffix.focus();
+  }
+}
+socioPrefix.addEventListener('paste', handleCodePaste);
+socioSuffix.addEventListener('paste', handleCodePaste);
 
 function abrirAuth() {
-  socioInput.value = '';
+  socioPrefix.value = '';
+  socioSuffix.value = '';
   socioError.textContent = '';
   authModal.classList.add('open');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => socioInput.focus(), 300);
+  setTimeout(() => socioPrefix.focus(), 300);
 }
 function cerrarAuth() {
   authModal.classList.remove('open');
@@ -1938,16 +1969,16 @@ document.getElementById('authClose').addEventListener('click', () => {
 authModal.addEventListener('click', e => { if (e.target === authModal) { pendingReserva = null; cerrarAuth(); } });
 
 function verificarSocio() {
-  const num = socioInput.value.trim();
-  if (!num) { socioError.textContent = 'Introduce tu número de socio.'; return; }
-  if (!/^\d{3,6}$/.test(num)) {
-    socioError.textContent = 'Introduce un número válido (3–6 dígitos).';
-    socioInput.focus();
+  const prefix = socioPrefix.value.trim().toUpperCase();
+  const suffix = socioSuffix.value.trim().toUpperCase();
+  if (!prefix || !suffix) { socioError.textContent = 'Introduce tu código de acceso completo.'; return; }
+  if (!/^[A-Z0-9]{2}$/.test(prefix) || !/^[A-Z0-9]{4}$/.test(suffix)) {
+    socioError.textContent = 'Código inválido. Formato: 2 letras – 4 caracteres.';
+    if (prefix.length < 2) socioPrefix.focus(); else socioSuffix.focus();
     return;
   }
-  // TODO: conectar con base de datos de socios cuando esté disponible
-  // Guardamos el número solo en memoria hasta que se confirme una reserva
-  socioActual = num;
+  // Guardamos el código en memoria hasta que se confirme una reserva
+  socioActual = prefix + '-' + suffix;
   cerrarAuth();
   if (pendingReserva) {
     const {day, idx} = pendingReserva;
@@ -1957,7 +1988,8 @@ function verificarSocio() {
 }
 
 document.getElementById('socioSubmit').addEventListener('click', verificarSocio);
-socioInput.addEventListener('keydown', e => { if (e.key === 'Enter') verificarSocio(); });
+socioPrefix.addEventListener('keydown', e => { if (e.key === 'Enter') socioSuffix.focus(); });
+socioSuffix.addEventListener('keydown', e => { if (e.key === 'Enter') verificarSocio(); });
 
 // ── CONFIRM MODAL ──
 const confirmModal = document.getElementById('confirmModal');
@@ -1986,10 +2018,47 @@ function cerrarConfirm() {
 document.getElementById('confirmClose').addEventListener('click', cerrarConfirm);
 confirmModal.addEventListener('click', e => { if (e.target === confirmModal) cerrarConfirm(); });
 
-document.getElementById('confirmBtn').addEventListener('click', () => {
+document.getElementById('confirmBtn').addEventListener('click', async () => {
   if (!reservaActual) return;
   const {day, idx} = reservaActual;
   const key = `${day}-${idx}`;
+  const c = sched[day][idx];
+  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
+  const confirmBtn = document.getElementById('confirmBtn');
+
+  // Send reservation to CRM
+  if (window.CRM_CONFIG) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Enviando...';
+    try {
+      const url = CRM_CONFIG.apiUrl + '/api/website-public/class-bookings';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': CRM_CONFIG.apiKey },
+        body: JSON.stringify({
+          memberCode: socioActual,
+          className: c.n,
+          day: dias[day],
+          dayKey: day,
+          time: c.t,
+          duration: c.dur,
+          trainer: c.tr,
+          source: 'website'
+        })
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        console.warn('[CRM] Booking POST failed:', res.status, errText);
+      }
+    } catch (err) {
+      console.warn('[CRM] Booking POST error:', err.message);
+    } finally {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Confirmar reserva';
+    }
+  }
+
+  // Update local state
   sched[day][idx].sp = Math.min(sched[day][idx].sp + 1, sched[day][idx].tot);
   misReservas.add(key);
   sessionStorage.setItem('abay_reservas', JSON.stringify([...misReservas]));
@@ -2025,10 +2094,45 @@ function cerrarCancelModal() {
 document.getElementById('cancelClose').addEventListener('click', cerrarCancelModal);
 cancelModal.addEventListener('click', e => { if (e.target === cancelModal) cerrarCancelModal(); });
 
-document.getElementById('cancelConfirmBtn').addEventListener('click', () => {
+document.getElementById('cancelConfirmBtn').addEventListener('click', async () => {
   if (!cancelActual) return;
   const {day, idx} = cancelActual;
   const key = `${day}-${idx}`;
+  const c = sched[day][idx];
+  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
+  const cancelBtn = document.getElementById('cancelConfirmBtn');
+
+  // Send cancellation to CRM
+  if (window.CRM_CONFIG) {
+    cancelBtn.disabled = true;
+    cancelBtn.textContent = 'Cancelando...';
+    try {
+      const url = CRM_CONFIG.apiUrl + '/api/website-public/class-bookings/cancel';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': CRM_CONFIG.apiKey },
+        body: JSON.stringify({
+          memberCode: socioActual,
+          className: c.n,
+          day: dias[day],
+          dayKey: day,
+          time: c.t,
+          source: 'website'
+        })
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        console.warn('[CRM] Cancel booking POST failed:', res.status, errText);
+      }
+    } catch (err) {
+      console.warn('[CRM] Cancel booking POST error:', err.message);
+    } finally {
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = 'Sí, cancelar reserva';
+    }
+  }
+
+  // Update local state
   sched[day][idx].sp = Math.max(sched[day][idx].sp - 1, 0);
   misReservas.delete(key);
   sessionStorage.setItem('abay_reservas', JSON.stringify([...misReservas]));

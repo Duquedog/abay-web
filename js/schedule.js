@@ -10,7 +10,7 @@
   function getMondayOfCurrentWeek() {
     var d = new Date();
     var day = d.getUTCDay(); // 0=Sun, 1=Mon … 6=Sat
-    var diff = (day === 0) ? -6 : 1 - day; // Monday is weekday 1
+    var diff = (day === 0) ? 1 : 1 - day; // Sunday → show upcoming week
     var monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + diff));
     return monday.toISOString().slice(0, 10);
   }
@@ -62,8 +62,8 @@
             n:   cls.service.name,
             tr:  cls.staff.displayName,
             dur: cls.service.duration + ' min',
-            sp:  0,   // spots taken (1:1 booking — no capacity concept yet)
-            tot: 1,   // total spots
+            sp:  cls.attendeeCount || 0,
+            tot: cls.capacity    || 1,
           });
         });
 
