@@ -1,11 +1,32 @@
 // js/crm.js — CRM integration for ABAY Centro Multidisciplinar
 
 (function () {
+  // ── Config guard ─────────────────────────────────────────────────────────
+
+  var CONFIG_OK = !!window.CRM_CONFIG;
+
+  if (!CONFIG_OK) {
+    console.error('[CRM] window.CRM_CONFIG no está definido. ' +
+      'Asegúrate de que config.runtime.js se carga antes que crm.js.');
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   function cfg() {
-    if (!window.CRM_CONFIG) throw new Error('config.js not loaded');
+    if (!window.CRM_CONFIG) throw new Error('config.runtime.js not loaded');
     return window.CRM_CONFIG;
+  }
+
+  var UNAVAILABLE_MSG = 'Formulario temporalmente no disponible. Inténtalo más tarde.';
+
+  function disableForm(formId, feedbackId, btnId) {
+    var btn = document.getElementById(btnId);
+    var feedback = document.getElementById(feedbackId);
+    if (btn) { btn.disabled = true; btn.title = UNAVAILABLE_MSG; }
+    if (feedback) {
+      feedback.className = 'form-feedback form-feedback--error';
+      feedback.textContent = UNAVAILABLE_MSG;
+    }
   }
 
   function apiBase() {
@@ -68,6 +89,7 @@
   function initLeadForm() {
     var form = document.getElementById('leadForm');
     if (!form) return;
+    if (!CONFIG_OK) { disableForm('leadForm', 'leadForm-feedback', 'lf-submit'); return; }
     var btn = document.getElementById('lf-submit');
     btn.dataset.label = btn.textContent;
     var feedback = document.getElementById('leadForm-feedback');
@@ -123,6 +145,7 @@
   function initBookingForm() {
     var form = document.getElementById('bookingForm');
     if (!form) return;
+    if (!CONFIG_OK) { disableForm('bookingForm', 'bookingForm-feedback', 'bf-submit'); return; }
     var btn = document.getElementById('bf-submit');
     btn.dataset.label = btn.textContent;
     var feedback = document.getElementById('bookingForm-feedback');
