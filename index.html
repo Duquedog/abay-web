@@ -1107,6 +1107,9 @@ footer {
   .cont-grid { grid-template-columns:1fr;gap:48px; }
   .foot-top { grid-template-columns:1fr 1fr;gap:40px; }
 }
+.form-feedback { margin-top:.5rem;font-size:.875rem;min-height:1.25rem; }
+.form-feedback--success { color:var(--accent); }
+.form-feedback--error { color:#f87171; }
 </style>
 </head>
 <body>
@@ -1572,27 +1575,29 @@ footer {
       </div>
       <div class="cont-map-placeholder">📍 Google Maps próximamente</div>
     </div>
-    <div class="form rv d2">
+    <form id="leadForm" class="form rv d2" novalidate>
       <div class="form-row-2">
-        <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" placeholder="Tu nombre"></div>
-        <div class="fg"><label class="fl">Teléfono</label><input class="fi" type="tel" placeholder="+34 XXX XXX XXX"></div>
+        <div class="fg"><label class="fl">Nombre *</label><input id="lf-name" name="name" class="fi" type="text" placeholder="Tu nombre" autocomplete="name"></div>
+        <div class="fg"><label class="fl">Teléfono</label><input id="lf-phone" name="phone" class="fi" type="tel" placeholder="+34 XXX XXX XXX" autocomplete="tel"></div>
       </div>
-      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" placeholder="tu@email.com"></div>
+      <div class="fg"><label class="fl">Email</label><input id="lf-email" name="email" class="fi" type="email" placeholder="tu@email.com" autocomplete="email"></div>
       <div class="fg">
         <label class="fl">¿Qué te interesa?</label>
-        <select class="fs fi">
-          <option>Membresía</option>
-          <option>Clases grupales</option>
-          <option>Entrenamiento personal</option>
-          <option>Fisioterapia</option>
-          <option>Preparación deportiva</option>
-          <option>Zona sauna / wellness</option>
-          <option>Visita gratuita al centro</option>
+        <select id="lf-service" name="serviceInterest" class="fs fi">
+          <option value="OTHER">Membresía</option>
+          <option value="GROUP">Clases grupales</option>
+          <option value="PT">Entrenamiento personal</option>
+          <option value="MASSAGE">Fisioterapia</option>
+          <option value="PT">Preparación deportiva</option>
+          <option value="OTHER">Zona sauna / wellness</option>
+          <option value="OTHER">Visita gratuita al centro</option>
         </select>
       </div>
-      <div class="fg"><label class="fl">Mensaje</label><textarea class="ft fi" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea></div>
-      <button class="btn-submit">Enviar mensaje</button>
-    </div>
+      <div class="fg"><label class="fl">Mensaje</label><textarea id="lf-message" name="message" class="ft fi" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea></div>
+      <div style="display:none" aria-hidden="true"><input id="lf-company" type="text" tabindex="-1" autocomplete="off"></div>
+      <div id="leadForm-feedback" class="form-feedback" aria-live="polite"></div>
+      <button id="lf-submit" class="btn-submit" type="submit">Enviar mensaje</button>
+    </form>
   </div>
 </section>
 
@@ -2190,5 +2195,43 @@ if (memBannerBtn) {
   memBannerBtn.addEventListener('click', () => irAContactoConPlan('Visita gratuita al centro'));
 }
 </script>
+
+<!-- BOOKING REQUEST MODAL -->
+<div id="bookingModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bm-title">
+  <div class="modal-box">
+    <button class="modal-close" id="bookingModalClose" aria-label="Cerrar">✕</button>
+    <h3 id="bm-title" class="modal-title">Solicitar reserva</h3>
+    <form id="bookingForm" novalidate>
+      <div class="form-row-2">
+        <div class="fg"><label class="fl">Nombre *</label><input id="bf-name" name="name" class="fi" type="text" placeholder="Tu nombre" autocomplete="name"></div>
+        <div class="fg"><label class="fl">Teléfono</label><input id="bf-phone" name="phone" class="fi" type="tel" placeholder="+34 XXX XXX XXX" autocomplete="tel"></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input id="bf-email" name="email" class="fi" type="email" placeholder="tu@email.com" autocomplete="email"></div>
+      <div class="fg">
+        <label class="fl">Servicio *</label>
+        <select id="bf-service" name="serviceType" class="fs fi">
+          <option value="">Selecciona un servicio...</option>
+          <option value="PT">Entrenamiento personal</option>
+          <option value="GROUP">Clases grupales</option>
+          <option value="MASSAGE">Fisioterapia / Masaje</option>
+          <option value="NUTRITION">Nutrición</option>
+          <option value="OTHER">Otro</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="fg"><label class="fl">Fecha preferida</label><input id="bf-date" name="preferredDate" class="fi" type="date"></div>
+        <div class="fg"><label class="fl">Hora preferida</label><input id="bf-time" name="preferredTime" class="fi" type="time"></div>
+      </div>
+      <div class="fg"><label class="fl">Número de personas</label><input id="bf-group" name="groupSize" class="fi" type="number" min="1" max="20" placeholder="1"></div>
+      <div class="fg"><label class="fl">Mensaje</label><textarea id="bf-message" name="message" class="ft fi" placeholder="Añade cualquier detalle adicional..."></textarea></div>
+      <div style="display:none" aria-hidden="true"><input id="bf-company" type="text" tabindex="-1" autocomplete="off"></div>
+      <div id="bookingForm-feedback" class="form-feedback" aria-live="polite"></div>
+      <button id="bf-submit" class="btn-submit" type="submit">Enviar solicitud</button>
+    </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="js/crm.js"></script>
 </body>
 </html>
