@@ -38,6 +38,7 @@
     var to = toDate.toISOString().slice(0, 10);
 
     var url = config.apiUrl + '/api/public/classes?from=' + from + '&to=' + to;
+    console.log('[Schedule] Fetching:', url);
 
     showLoading();
 
@@ -47,7 +48,11 @@
         return res.json();
       })
       .then(function (data) {
-        var classes = data.classes || [];
+        var classes = Array.isArray(data.classes) ? data.classes
+                    : Array.isArray(data.data)    ? data.data
+                    : Array.isArray(data)         ? data
+                    : [];
+        console.log('[Schedule] Received', classes.length, 'classes. Raw keys:', Object.keys(data || {}));
 
         // Group classes by day key; reset all 6 days first so empty days show nothing
         var newSched = { lun: [], mar: [], mie: [], jue: [], vie: [], sab: [] };
@@ -58,10 +63,11 @@
           if (!dayKey) return; // Sunday or unknown — skip
 
           newSched[dayKey].push({
+            id:  cls.id,                                // CRM booking ID for join endpoint
             t:   cls.startTime.slice(11, 16),          // "HH:MM" from ISO UTC
-            n:   cls.service.name,
-            tr:  cls.staff.displayName,
-            dur: cls.service.duration + ' min',
+            n:   (cls.service && cls.service.name) || 'Clase',
+            tr:  (cls.staff && cls.staff.displayName) || 'Instructor',
+            dur: ((cls.service && cls.service.duration) || '?') + ' min',
             sp:  cls.attendeeCount || 0,
             tot: cls.capacity    || 1,
           });
@@ -81,7 +87,7 @@
         }
       })
       .catch(function (err) {
-        console.warn('[Schedule] Failed to fetch CRM classes:', err.message);
+        console.error('[Schedule] Error loading classes:', err);
         // Fallback: keep window.sched as-is (hardcoded placeholder data)
         if (typeof renderCls === 'function' && typeof diaActual !== 'undefined') {
           renderCls(diaActual);

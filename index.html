@@ -1321,7 +1321,7 @@ footer {
         <h2 class="sec-title">Próximas clases</h2>
       </div>
       <div class="day-tabs">
-        <button class="day-tab on" onclick="setDay(this,'lun')">Lun</button>
+        <button class="day-tab" onclick="setDay(this,'lun')">Lun</button>
         <button class="day-tab" onclick="setDay(this,'mar')">Mar</button>
         <button class="day-tab" onclick="setDay(this,'mie')">Mié</button>
         <button class="day-tab" onclick="setDay(this,'jue')">Jue</button>
@@ -1841,16 +1841,28 @@ window.sched = {
 // TODO: validación de socios — conectar con base de datos cuando esté disponible
 
 let socioActual = sessionStorage.getItem('abay_socio') || null;
+// Clear stale reservations when the day changes
+const _today = new Date().toISOString().slice(0, 10);
+if (sessionStorage.getItem('abay_sched_day') !== _today) {
+  sessionStorage.removeItem('abay_reservas');
+  sessionStorage.setItem('abay_sched_day', _today);
+}
 let misReservas  = new Set(JSON.parse(sessionStorage.getItem('abay_reservas') || '[]'));
-let diaActual    = 'lun';
+const DAY_MAP = {1:'lun', 2:'mar', 3:'mie', 4:'jue', 5:'vie', 6:'sab'};
+let diaActual    = DAY_MAP[new Date().getDay()] || 'lun';
 let pendingReserva = null; // {day, idx}
 
 function renderCls(day) {
   const grid = document.getElementById('clsGrid');
   const cls  = (window.sched || {})[day] || [];
+  if (cls.length === 0) {
+    grid.innerHTML = '<div class="cls-card" style="opacity:.5;text-align:center;padding:2rem">' +
+      '<div class="cls-name">No hay clases programadas para este día</div></div>';
+    return;
+  }
   grid.innerHTML = cls.map((c, idx) => {
-    const key   = `${day}-${idx}`;
-    const pct   = Math.round((c.sp / c.tot) * 100);
+    const key   = `${day}-${c.id || idx}`;
+    const pct   = c.tot > 0 ? Math.round((c.sp / c.tot) * 100) : 0;
     const avail = c.tot - c.sp;
     const urgency = avail <= 3 ? '🔴' : avail <= 6 ? '🟡' : '🟢';
     let btnClass, btnText;
@@ -1891,7 +1903,10 @@ function setDay(btn, day) {
   diaActual = day;
   renderCls(day);
 }
-renderCls('lun');
+document.querySelectorAll('.day-tab').forEach(t => {
+  if (t.getAttribute('onclick').includes("'" + diaActual + "'")) t.classList.add('on');
+});
+renderCls(diaActual);
 
 // ── NAV ──
 function actualizarNav() {
@@ -1968,7 +1983,9 @@ document.getElementById('authClose').addEventListener('click', () => {
 });
 authModal.addEventListener('click', e => { if (e.target === authModal) { pendingReserva = null; cerrarAuth(); } });
 
-function verificarSocio() {
+async function verificarSocio() {
+  const submitBtn = document.getElementById('socioSubmit');
+  if (submitBtn.disabled) return;
   const prefix = socioPrefix.value.trim().toUpperCase();
   const suffix = socioSuffix.value.trim().toUpperCase();
   if (!prefix || !suffix) { socioError.textContent = 'Introduce tu código de acceso completo.'; return; }
@@ -1977,8 +1994,37 @@ function verificarSocio() {
     if (prefix.length < 2) socioPrefix.focus(); else socioSuffix.focus();
     return;
   }
-  // Guardamos el código en memoria hasta que se confirme una reserva
-  socioActual = prefix + '-' + suffix;
+
+  const code = prefix + '-' + suffix;
+
+  // Validate against CRM member database
+  if (window.CRM_CONFIG) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verificando...';
+    socioError.textContent = '';
+    try {
+      const res = await fetch(CRM_CONFIG.apiUrl + '/api/website-public/member-access/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': CRM_CONFIG.apiKey },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        socioError.textContent = 'Código no válido o socio inactivo';
+        return;
+      }
+    } catch (err) {
+      console.warn('[Auth] Verify error:', err.message);
+      socioError.textContent = 'Error al verificar. Inténtalo de nuevo.';
+      return;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Verificar socio';
+    }
+  }
+
+  socioActual = code;
+  socioError.textContent = '';
   cerrarAuth();
   if (pendingReserva) {
     const {day, idx} = pendingReserva;
@@ -1996,6 +2042,7 @@ const confirmModal = document.getElementById('confirmModal');
 let reservaActual  = null; // {day, idx}
 
 function abrirConfirm(day, idx) {
+  if (!sched[day] || !sched[day][idx]) return;
   const c = sched[day][idx];
   const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
   document.getElementById('confClsName').textContent = c.n;
@@ -2020,38 +2067,34 @@ confirmModal.addEventListener('click', e => { if (e.target === confirmModal) cer
 
 document.getElementById('confirmBtn').addEventListener('click', async () => {
   if (!reservaActual) return;
-  const {day, idx} = reservaActual;
-  const key = `${day}-${idx}`;
-  const c = sched[day][idx];
-  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
   const confirmBtn = document.getElementById('confirmBtn');
+  if (confirmBtn.disabled) return;
+  const {day, idx} = reservaActual;
+  if (!sched[day] || !sched[day][idx]) return;
+  const c = sched[day][idx];
+  const key = `${day}-${c.id || idx}`;
+  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
 
-  // Send reservation to CRM
-  if (window.CRM_CONFIG) {
+  // Send reservation to CRM (only if class has a CRM booking ID)
+  console.log('[Reserva] Class data:', { id: c.id, name: c.n, day, idx });
+  if (window.CRM_CONFIG && c.id) {
     confirmBtn.disabled = true;
     confirmBtn.textContent = 'Enviando...';
     try {
-      const url = CRM_CONFIG.apiUrl + '/api/website-public/class-bookings';
+      const url = CRM_CONFIG.apiUrl + '/api/website-public/classes/' + c.id + '/join';
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': CRM_CONFIG.apiKey },
-        body: JSON.stringify({
-          memberCode: socioActual,
-          className: c.n,
-          day: dias[day],
-          dayKey: day,
-          time: c.t,
-          duration: c.dur,
-          trainer: c.tr,
-          source: 'website'
-        })
+        body: JSON.stringify({ code: socioActual })
       });
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
-        console.warn('[CRM] Booking POST failed:', res.status, errText);
+        console.warn('[CRM] Join class failed:', res.status, errText);
+        alert('No se pudo completar la reserva. Inténtalo de nuevo.');
       }
     } catch (err) {
-      console.warn('[CRM] Booking POST error:', err.message);
+      console.warn('[CRM] Join class error:', err.message);
+      alert('Error de conexión. Inténtalo de nuevo.');
     } finally {
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Confirmar reserva';
@@ -2076,6 +2119,7 @@ const cancelModal = document.getElementById('cancelModal');
 let cancelActual = null; // {day, idx}
 
 function abrirCancelModal(day, idx) {
+  if (!sched[day] || !sched[day][idx]) return;
   const c = sched[day][idx];
   const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
   document.getElementById('cancelClsName').textContent = c.n;
@@ -2096,39 +2140,35 @@ cancelModal.addEventListener('click', e => { if (e.target === cancelModal) cerra
 
 document.getElementById('cancelConfirmBtn').addEventListener('click', async () => {
   if (!cancelActual) return;
-  const {day, idx} = cancelActual;
-  const key = `${day}-${idx}`;
-  const c = sched[day][idx];
-  const dias = {lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
   const cancelBtn = document.getElementById('cancelConfirmBtn');
+  if (cancelBtn.disabled) return;
+  const {day, idx} = cancelActual;
+  if (!sched[day] || !sched[day][idx]) return;
+  const c = sched[day][idx];
+  const key = `${day}-${c.id || idx}`;
 
   // Send cancellation to CRM
-  if (window.CRM_CONFIG) {
+  if (window.CRM_CONFIG && c.id) {
     cancelBtn.disabled = true;
     cancelBtn.textContent = 'Cancelando...';
     try {
-      const url = CRM_CONFIG.apiUrl + '/api/website-public/class-bookings/cancel';
+      const url = CRM_CONFIG.apiUrl + '/api/website-public/classes/' + c.id + '/leave';
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': CRM_CONFIG.apiKey },
-        body: JSON.stringify({
-          memberCode: socioActual,
-          className: c.n,
-          day: dias[day],
-          dayKey: day,
-          time: c.t,
-          source: 'website'
-        })
+        body: JSON.stringify({ code: socioActual })
       });
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
-        console.warn('[CRM] Cancel booking POST failed:', res.status, errText);
+        console.warn('[CRM] Leave class failed:', res.status, errText);
+        alert('No se pudo cancelar la reserva. Inténtalo de nuevo.');
       }
     } catch (err) {
-      console.warn('[CRM] Cancel booking POST error:', err.message);
+      console.warn('[CRM] Leave class error:', err.message);
+      alert('Error de conexión. Inténtalo de nuevo.');
     } finally {
       cancelBtn.disabled = false;
-      cancelBtn.textContent = 'Sí, cancelar reserva';
+      cancelBtn.textContent = 'Sí, cancelar';
     }
   }
 
